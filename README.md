@@ -8,3 +8,12 @@ PIV Image Generator is a tool that generates synthetic Particle Imaging Velocime
 ![Uniform Flow](https://git.qoto.org/CoreRasurae/piv-image-generator/raw/master/images/uniform07_0.gif?inline=false) |
 |:---:|:---:|
 | Flow with Stagnation point | Uniform Flow |
+
+| ![Rankine vortex](https://git.qoto.org/CoreRasurae/piv-image-generator/raw/master/images/rankine_vortex07_0.gif?inline=false) |
+![Rankine vortex with superimmposed Uniform Flow](https://git.qoto.org/CoreRasurae/piv-image-generator/raw/master/images/rk_uniform07_0.gif?inline=false) |
+|:---:|:---:|
+| Rankine vortex flow | Rankine vortex with superimposed Uniform flow |
+
+| ![Rankine vortex](https://git.qoto.org/CoreRasurae/piv-image-generator/raw/master/images/parabolic07_0.gif?inline=false) |
+|:---:|
+| Parabolic Flow |
