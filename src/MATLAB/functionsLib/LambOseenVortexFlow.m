@@ -54,17 +54,16 @@ classdef LambOseenVortexFlow
             rmax = obj.Radius * c; 
             obj.circulation = maxVelocityPixel * acos(1.0 - (maxVelocityPixel*dt)^2/(2.0 * rmax^2)) / ...
                 (maxVelocityPixel * (1.0/rmax + 1.0/(2.0 * obj.alfa) * obj.Radius / rmax^2) * ...
-                (1.0 - exp(-obj.alfa .* rmax^2/obj.Radius^2)) * dt)
+                (1.0 - exp(-obj.alfa .* rmax^2/obj.Radius^2)) * dt);
         end
         
-        function [ x1, y1 ] = computeDisplacementAtImagePosition(obj, x0, y0)
-            circulation = obj.circulation;
+        function [ x1, y1 ] = computeDisplacementAtImagePosition(obj, x0, y0)            
             y0 = double(y0);
             x0 = double(x0);
             r=sqrt((y0 - obj.yc).^2 + (x0 - obj.xc).^2);
             theta0=atan2((y0 - obj.yc),(x0 - obj.xc));
             
-            theta1 = obj.Weight .* circulation .* obj.dt .* ...
+            theta1 = obj.Weight .* obj.circulation .* obj.dt .* ...
                      (1.0./r + 1.0./(2.0 .* obj.alfa) .* obj.Radius ./ r.^2) .* ...
                      (1.0 - exp(-obj.alfa .* r.^2 ./ obj.Radius^2)) + theta0;
             x1 = r .* cos(theta1);
