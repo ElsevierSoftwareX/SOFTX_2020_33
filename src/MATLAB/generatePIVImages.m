@@ -18,12 +18,17 @@
 %Special thanks go to Ana Margarida and Rui Aleixo
 %and their initial effort on building a draft for a similar tool.
 
-function [ Im0, Im1, particleMap, flowField ] = generatePIVImages( flowParameters, imageProperties, pivParameters, run )
+function [ Im0, Im1, particleMap, flowField ] = generatePIVImages( ...
+          flowParameters, imageProperties, pivParameters, run, ...
+          displayFlowField, closeFlowField )
 %generatePIVImages Generates a pair of Synthetic PIV images according to specified
 %paramteres and properties.
 %   flowParameters flow related configuration
 %   imageProperties image related properties and px to mm units conversion factor
 %   pivParameter PIV related configuration
+%   run current PIV image generation run number
+%   displayFlowField true, display an image on screen with the flow field
+%   closeFlowFiels true, close figure with flow field after creating it
 %   Returns:
 %   Im0 the first image of the PIV pair, with randomly placed particles according to configuration
 %   Im1 the displaced image of the PIV pair
@@ -34,26 +39,38 @@ addpath functionsLib;
 
 tic();
 
-displayFlowField = true;
-closeFlowField = true;
-
 outFolder = ['out' filesep createPathNameForTestAndConditions( flowParameters, pivParameters )];
-mkdir(outFolder);
+if ~exist(outFolder, 'dir')
+    mkdir(outFolder);
+end
 minDI = min(pivParameters.lastWindow(1), pivParameters.lastWindow(1));
+
 %Convert maxVelocity from mm/s to px/s and compute adequate dt for the
 %deltaXFactor.
 flowParameters.maxVelocityPixel = flowParameters.maxVelocity / imageProperties.mmPerPixel;
 flowParameters.dt = (minDI * flowParameters.deltaXFactor) / flowParameters.maxVelocityPixel;
+flowField = createFlow(flowParameters, imageProperties);
+disp(['Generating flow: ' flowField.getName()])
+disp(['to: ' outFolder]);
 disp(['dt=' num2str(flowParameters.dt)]);
 
-flowField = createFlow(flowParameters, imageProperties);
 [flowField, particleMap] = createParticles(flowParameters, pivParameters, imageProperties, flowField);
+
+[x0s, y0s] = meshgrid(0:imageProperties.sizeX-1,0:imageProperties.sizeY-1);
+[x1s, y1s] = flowField.computeDisplacementAtImagePosition(x0s, y0s);
+
+us = x1s - x0s;
+vs = y1s - y0s;
+absUs=abs(us(imageProperties.marginsX/2 + 1:end-imageProperties.marginsX/2,imageProperties.marginsY/2 + 1:end-imageProperties.marginsY/2));
+absVs=abs(vs(imageProperties.marginsX/2 + 1:end-imageProperties.marginsX/2,imageProperties.marginsY/2 + 1:end-imageProperties.marginsY/2));
+normVs=sqrt(us(imageProperties.marginsX/2 + 1:end-imageProperties.marginsX/2,imageProperties.marginsY/2 + 1:end-imageProperties.marginsY/2).^2 + ...
+    vs(imageProperties.marginsX/2 + 1:end-imageProperties.marginsX/2,imageProperties.marginsY/2 + 1:end-imageProperties.marginsY/2).^2);
+disp(['MaxU is ' num2str(max(max(absUs)))]);
+disp(['MaxV is ' num2str(max(max(absVs)))]);
+disp(['Max velocity is ' num2str(max(max(normVs)))]);
+
 if displayFlowField
-    [x0s, y0s] = meshgrid(0:imageProperties.sizeX+imageProperties.marginsX-1,0:imageProperties.sizeY+imageProperties.marginsY-1);
-    [x1s, y1s] = flowField.computeDisplacementAtImagePosition(x0s, y0s);
     f = figure;
-    us = x1s - x0s;
-    vs = y1s - y0s;
     quiver(x0s(1:10:end, 1:10:end), y0s(1:10:end, 1:10:end), us(1:10:end, 1:10:end), vs(1:10:end, 1:10:end));
     title([flowField.getName() ' - ' 'Noise' num2str(pivParameters.noiseLevel, '%02d') ]);
     bytes = figToImStream('figHandle', f, ...
@@ -78,6 +95,7 @@ imwrite(Im0, [outFolder filesep flowParameters.flowType num2str(run, '%02d') '_0
 imwrite(Im1, [outFolder filesep flowParameters.flowType num2str(run, '%02d') '_1.tif']);
 
 toc();
+disp('--------------------------------------------------------')
 
 end
 
