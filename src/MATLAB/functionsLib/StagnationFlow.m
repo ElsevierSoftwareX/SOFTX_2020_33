@@ -42,12 +42,18 @@ classdef StagnationFlow
         end
         
         function [ x1, y1 ] = computeDisplacementAtImagePosition(obj, x0, y0 )
-            circulation = obj.maxVelocityPixel;
-            xc = obj.imSizeX/2.0;
-            yc = obj.marginsY/2.0;
+            maxVelocity = obj.maxVelocityPixel;
+            %Max x coordinate is -1 regarding to imSizeX, because,
+            xc = (obj.imSizeX-1)/2.0;
+            yc = (obj.marginsY+1)/2.0;
+
+            maxX = (obj.imSizeX-1) - obj.marginsX/2;
+            maxY = (obj.imSizeY-1) - obj.marginsY/2;
+            
+            M = sqrt((maxX-xc)^2+(maxY-yc)^2);
                        
-            x1 = exp(circulation .* obj.dt / (obj.imSizeX + obj.marginsX)/2) .* (x0-xc) + xc;
-            y1 = exp(-circulation  .* obj.dt / (obj.imSizeY + obj.marginsY/2)) .* (y0-yc) + yc;
+            x1 = exp(maxVelocity .* obj.dt / M) .* (x0-xc) + xc;
+            y1 = exp(-maxVelocity  .* obj.dt / M) .* (y0-yc) + yc;
             
             y1(y0 < yc) = y0(y0 < yc);
             x1(y0 < yc) = x0(y0 < yc);
