@@ -26,7 +26,11 @@ classdef RankineVortexFlow
         maxVelocityPixel
         imSizeX
         imSizeY
+        marginsX
         marginsY
+        xc
+        yc
+        circulation
         dt
         Weight = 1.0;
         Radius = 100.0;
@@ -37,35 +41,37 @@ classdef RankineVortexFlow
             obj.dt = dt;
             obj.imSizeX = double(imageProperties.sizeX);
             obj.imSizeY = double(imageProperties.sizeY);
+            obj.marginsX = double(imageProperties.marginsX);
             obj.marginsY = double(imageProperties.marginsY);
+            %Arrays are indexed at one, but coordinates start at 0, so ys[obj.imSizeY]=obj.imSizeY-1
+            obj.yc = (obj.imSizeY-1)/2.0; 
+            obj.xc = (obj.imSizeX-1)/2.0;
+            obj.circulation = obj.maxVelocityPixel / obj.Radius;
         end
         
-        function [ x1, y1 ] = computeDisplacementAtImagePosition(obj, x0, y0)
-            yc = obj.imSizeY/2 + obj.marginsY/2;
-            xc = obj.imSizeX/2 + obj.marginsY/2;
-            circulation = obj.maxVelocityPixel / obj.Radius;
-            r=sqrt((y0 - yc).^2 + (x0 - xc).^2);
-            theta0=atan2((y0 - yc),(x0 - xc));
+        function [ x1, y1 ] = computeDisplacementAtImagePosition(obj, x0, y0)           
+            r=sqrt((y0 - obj.yc).^2 + (x0 - obj.xc).^2);
+            theta0=atan2((y0 - obj.yc),(x0 - obj.xc));
             
             x1 = zeros(size(x0,1), size(x0,2));
             y1 = zeros(size(x0,1), size(x0,2));
             
             %Inside the forced Vortex Radius            
             if ~isempty(r(r <= obj.Radius))
-               theta1 = obj.Weight .* circulation .* obj.dt + theta0(r <= obj.Radius);
+               theta1 = obj.Weight .* obj.circulation .* obj.dt + theta0(r <= obj.Radius);
                x1(r <= obj.Radius) = r(r <= obj.Radius) .* cos(theta1);
                y1(r <= obj.Radius) = r(r <= obj.Radius) .* sin(theta1);
             end
             
             %Outside the forced Vortex Radius (free vortex)            
             if ~isempty(r(r > obj.Radius))
-               theta1 = obj.Weight .* circulation .* obj.dt .* obj.Radius^2 ./ r(r > obj.Radius).^2 + theta0(r > obj.Radius);
+               theta1 = obj.Weight .* obj.circulation .* obj.dt .* obj.Radius^2 ./ r(r > obj.Radius).^2 + theta0(r > obj.Radius);
                x1(r > obj.Radius) = r(r > obj.Radius) .* cos(theta1);
                y1(r > obj.Radius) = r(r > obj.Radius) .* sin(theta1);
             end
             
-            x1 = x1 + xc;
-            y1 = y1 + yc;    
+            x1 = x1 + obj.xc;
+            y1 = y1 + obj.yc;    
         end
         
         function [name] = getName(~) 
