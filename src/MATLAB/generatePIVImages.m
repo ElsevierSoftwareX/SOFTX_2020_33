@@ -73,14 +73,7 @@ if displayFlowField
     f = figure;
     quiver(x0s(1:10:end, 1:10:end), y0s(1:10:end, 1:10:end), us(1:10:end, 1:10:end), vs(1:10:end, 1:10:end));
     title([flowField.getName() ' - ' 'Noise' num2str(pivParameters.noiseLevel, '%02d') ]);
-    bytes = figToImStream('figHandle', f, ...
-                  'imageFormat', 'jpg', ...
-                  'outputType', 'uint8');
-    fileID = fopen([ outFolder filesep flowParameters.flowType '_flowField.jpg' ],'w');
-    
-    fwrite(fileID, bytes);
-    
-    fclose(fileID);
+    saveas(gcf, [ outFolder filesep flowParameters.flowType '_flowField.jpg' ]);
     if closeFlowField
         close(f);
     end
