@@ -30,9 +30,9 @@ classdef RankineVortexAndUniformFlow
         dt
         u
         v
-        c
-        c1
-	M
+        circulation
+        xc
+        yc
         Weight = 1.0;
         Radius = 100;
     end
@@ -43,35 +43,35 @@ classdef RankineVortexAndUniformFlow
             obj.imSizeX = double(imageProperties.sizeX);
             obj.imSizeY = double(imageProperties.sizeY);
             obj.marginsY = double(imageProperties.marginsY);
-	    obj.c1 = 0.35; %Ratio of constant velocity components u,v contribution for the maxVelocity magnitude 
-            if obj.c1 < 0.0 || obj.c1 > 1.0
+	    c1 = 0.35; %Ratio of constant velocity components u,v contribution for the maxVelocity magnitude 
+            if c1 < 0.0 || c1 > 1.0
                 error('Ratio c1 of constant velocity components u,v must be between 0.0 and 1.0');
             end
-            obj.c = 1.0 - obj.c1;
-            obj.M = sqrt(obj.c^2+2.0*obj.c1^2+2.0*obj.c*obj.c1*sqrt(2.0));
-            obj.u = maxVelocityPixel*obj.c1/obj.M; 
-            obj.v = maxVelocityPixel*obj.c1/obj.M;
+            c = 1.0 - c1;
+            M = c + sqrt(2.0)*c1;
+            obj.u = maxVelocityPixel*c1/M; 
+            obj.v = maxVelocityPixel*c1/M;
+            obj.circulation = obj.maxVelocityPixel * c / M;
+            %Arrays are indexed at one, but coordinates start at 0, so ys[obj.imSizeY]=obj.imSizeY-1
+            obj.yc = (obj.imSizeY-1)/2.0; 
+            obj.xc = (obj.imSizeX-1)/2.0;
         end
         
         function [ x1, y1 ] = computeDisplacementAtImagePosition(obj, x0, y0 )
-            circulation = obj.maxVelocityPixel * obj.c / obj.M;
-            xc = obj.imSizeX/2.0;
-            yc = obj.imSizeY/2.0;
-
             %Computed with Runge-Kutta numeric method of 4th order
-            h = obj.dt/1.0;
+            h = obj.dt;
             %
             x1 = zeros(size(x0,1), size(x0,2));
             y1 = zeros(size(x0,1), size(x0,2));
             for i = 1:size(x0,1)
                 for j = 1:size(x0,2)
-                    %Decide wether the point is in the forced region or
+                   %Decide wether the point is in the forced region or
                     %free region
-                    xk1 = x0(i,j) - xc;
-                    yk1 = y0(i,j) - yc;
+                    xk1 = x0(i,j) - obj.xc;
+                    yk1 = y0(i,j) - obj.yc;
                     r = sqrt(xk1.^2 + yk1.^2);                    
                     if r > obj.Radius
-                        m = circulation * obj.Radius;
+                        m = obj.circulation * obj.Radius;
                         
                         k1x = h * (-(m * yk1)/(xk1^2 + yk1^2) + obj.u);
                         k1y = h * ((m * xk1)/(xk1^2 + yk1^2) + obj.v);
@@ -91,10 +91,10 @@ classdef RankineVortexAndUniformFlow
                         k4x = h * (-(m * yk4)/(xk4^2 + yk4^2) + obj.u);
                         k4y = h * ((m * xk4)/(xk4^2 + yk4^2) + obj.v);
 
-                        x1(i,j) = xk1 + 1/6*(k1x + 2*k2x + 2*k3x + k4x) + xc;
-                        y1(i,j) = yk1 + 1/6*(k1y + 2*k2y + 2*k3y + k4y) + yc;
+                        x1(i,j) = xk1 + 1/6*(k1x + 2*k2x + 2*k3x + k4x) + obj.xc;
+                        y1(i,j) = yk1 + 1/6*(k1y + 2*k2y + 2*k3y + k4y) + obj.yc;
                     else
-                        m = circulation/obj.Radius;
+                        m = obj.circulation / obj.Radius;
                         
                         k1x = h * (-(m * yk1) + obj.u);
                         k1y = h * ((m * xk1) + obj.v);
@@ -114,8 +114,8 @@ classdef RankineVortexAndUniformFlow
                         k4x = h * (-(m * yk4) + obj.u);
                         k4y = h * ((m * xk4) + obj.v);
 
-                        x1(i,j) = xk1 + 1/6*(k1x + 2*k2x + 2*k3x + k4x) + xc;
-                        y1(i,j) = yk1 + 1/6*(k1y + 2*k2y + 2*k3y + k4y) + yc;
+                        x1(i,j) = xk1 + 1/6*(k1x + 2*k2x + 2*k3x + k4x) + obj.xc;
+                        y1(i,j) = yk1 + 1/6*(k1y + 2*k2y + 2*k3y + k4y) + obj.yc;
                     end
                 end
             end
