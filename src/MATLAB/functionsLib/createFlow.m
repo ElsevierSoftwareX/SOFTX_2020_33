@@ -43,8 +43,8 @@ switch flowType
         obj = RotatedShearFlow(22.3, flowParameters.maxVelocityPixel, flowParameters.dt, imageProperties);
     case 'shear_45d0'
         obj = RotatedShearFlow(45.0, flowParameters.maxVelocityPixel, flowParameters.dt, imageProperties);        
-    case 'lamb_oseen_vortex'
-        obj = LambOseenVortexFlow(flowParameters.maxVelocityPixel, flowParameters.dt, imageProperties);
+    case 'decaying_vortex'
+        obj = LambOseenLikeVortexFlow(flowParameters.maxVelocityPixel, flowParameters.dt, imageProperties);
     otherwise        
         error(['Unexpected flow type: ''' flowType ''''])
 end

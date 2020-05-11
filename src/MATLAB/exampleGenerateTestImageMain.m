@@ -25,10 +25,10 @@ sizeX=512; %Image width without margins
 sizeY=512; %Image height without margins
 
 displayFlowField=true; %Display image of each flow field,
-closeFlowField=true; %but close it automatically
+closeFlowField=false; %but do not close it automatically
 
 %flows={'rk_uniform' 'rankine_vortex' 'parabolic' 'uniform' 'stagnation',...
-%        'shear', 'shear_22d3', 'shear_45d0', 'lamb_oseen_vortex'};
+%        'shear', 'shear_22d3', 'shear_45d0', 'decaying_vortex'};
 flows={'stagnation'};
 
 bitDepths=8;

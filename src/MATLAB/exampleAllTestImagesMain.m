@@ -28,7 +28,7 @@ displayFlowField=true; %Display image of each flow field,
 closeFlowField=true; %but close it automatically
 
 flows={'uniform' 'parabolic' 'stagnation' 'shear' 'shear_45d0' ...
-    'shear_22d3' 'rankine_vortex' 'lamb_oseen_vortex' 'rk_uniform'};
+    'shear_22d3' 'rankine_vortex' 'decaying_vortex' 'rk_uniform'};
 bitDepths=8;
 deltaXFactor=[0.05 0.25];
 particleRadius=[1.5 3.0];

@@ -18,7 +18,7 @@
 %Special thanks go to Ana Margarida and Rui Aleixo
 %and their initial effort on building a draft for a similar tool.
 
-classdef LambOseenVortexFlow
+classdef LambOseenLikeVortexFlow
 %LambOseenVortexFlow Class that defines a Lamb-Oseen vortex flow field
 %   Detailed explanation goes here
 
@@ -37,7 +37,7 @@ classdef LambOseenVortexFlow
         Radius = 100.0;
     end
     methods
-        function obj = LambOseenVortexFlow(maxVelocityPixel, dt, imageProperties)
+        function obj = LambOseenLikeVortexFlow(maxVelocityPixel, dt, imageProperties)
             obj.maxVelocityPixel = maxVelocityPixel;
             obj.dt = dt;
             obj.imSizeX = double(imageProperties.sizeX);
@@ -74,7 +74,7 @@ classdef LambOseenVortexFlow
         end
         
         function [name] = getName(~) 
-            name = 'Lamb-Oseen Vortex flow';
+            name = 'Decaying Vortex flow';
         end
         
         %function obj = set.Weight(obj, weight)
