@@ -25,10 +25,10 @@ function [ Im0, Im1, particleMap, flowField ] = generatePIVImages( ...
 %paramteres and properties.
 %   flowParameters flow related configuration
 %   imageProperties image related properties and px to mm units conversion factor
-%   pivParameter PIV related configuration
+%   pivParameters PIV related configuration
 %   run current PIV image generation run number
 %   displayFlowField true, display an image on screen with the flow field
-%   closeFlowFiels true, close figure with flow field after creating it
+%   closeFlowField true, close figure with flow field after creating it
 %   Returns:
 %   Im0 the first image of the PIV pair, with randomly placed particles according to configuration
 %   Im1 the displaced image of the PIV pair
